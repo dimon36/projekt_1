@@ -3,7 +3,7 @@
 
 //query to change page text
 $PageEdit = new Curl;
-// OLD $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=bearbeiten');
+
 $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=standalone_seiten_ajax');
 
 $pageToEdit = $response->body;
