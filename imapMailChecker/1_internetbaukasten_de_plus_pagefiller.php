@@ -37,26 +37,32 @@ $pageToEdit = str_get_html($pageToEdit);
 $ul = $pageToEdit->find("#ibk_nav_ul", 0);
 //receive all links to editable pages
 $k=0;
-foreach($ul->find('li') as $li) 
-{
-    //$linksToEdit[] =  $li -> find('a', 0) -> href;
-    $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?aktion=seiten_auswahl&seiten_id='.$li -> find('a', 0) -> href);
-    $pageToEdit = $response->body;
-	$pageToEdit = str_get_html($pageToEdit);
-	$new_block = $pageToEdit -> find('.ibk_editiable_new', 0)->id;
-	preg_match_all("/ibk_block_id_(.*)_elemente_id_11/",$new_block,$new_block_id);
-	
+foreach($ul->find('li') as $li) {	
 	$k++;
-	// create new block
-	$PageEdit -> get('http://www.internetbaukasten.de/index.php?aktion=new_sub_block&block_id='.$new_block_id[1][0].'&elemente_id=1');
-	$PageEdit -> get('http://www.internetbaukasten.de/index.php?aktion=set_block_typ&blockkombination_id=49');
-	$PageEdit -> post('http://www.internetbaukasten.de/index.php', array('aktion' => 'edit_block_data', 'ta' => $xml['element']['text'][$k]));
+	createBlock($li -> find('a', 0) -> href, $xml['element']['text'][$k]);
 }
 
 //export to the web
 $PageEdit->get('http://www.internetbaukasten.de/index.php?aktion=export_do');
 
 
+
+function createBlock($id_site, $text) {
+$PageEdit = new Curl;
+	//$linksToEdit[] =  $li -> find('a', 0) -> href;
+	$response = $PageEdit->get('http://www.internetbaukasten.de/index.php?aktion=seiten_auswahl&seiten_id='.$id_site);
+	$pageToEdit = $response->body;
+	$pageToEdit = str_get_html($pageToEdit);
+	$new_block = $pageToEdit -> find('.ibk_editiable_new', 0)->id;
+	preg_match_all("/ibk_block_id_(.*)_elemente_id_11/",$new_block,$new_block_id);
+	
+	
+	// create new block
+	$PageEdit -> get('http://www.internetbaukasten.de/index.php?aktion=new_sub_block&block_id='.$new_block_id[1][0].'&elemente_id=1');
+	$PageEdit -> get('http://www.internetbaukasten.de/index.php?aktion=set_block_typ&blockkombination_id=49');
+	$PageEdit -> post('http://www.internetbaukasten.de/index.php', array('aktion' => 'edit_block_data', 'ta' => $text));
+	
+}
 
 
 
