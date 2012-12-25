@@ -1,7 +1,7 @@
 <? 
 //POST - query to receive article data
 $article = new Curl;
-$response = $article->post('http://link.gutes-lernen.com/xml/request.php', array('req_id' => '0000', 'pass' => 'ad6cd7f8413b9b6bc0baaddf62d0ce59', 'get_domain' => 'false', 'dom_purl' => 'sdom.co', 'get_link' => 'true'));
+$response = $article->post('http://link.gutes-lernen.com/xml/request.php', array('req_id' => '0000', 'pass' => 'ad6cd7f8413b9b6bc0baaddf62d0ce59', 'get_domain' => 'false', 'dom_purl' => 'sdom.co', 'get_link' => 'false'));
 $articleBody = $response->body;
 $xml = json_decode(json_encode((array) simplexml_load_string($articleBody)), 1);
 print_r($xml);

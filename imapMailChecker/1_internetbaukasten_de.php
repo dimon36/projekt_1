@@ -1,9 +1,6 @@
 <?
 $db = new edb($db_data);
-
 $curl_start = new Curl;
-
-
 /* try to connect */
 $inbox = imap_open($IMAPhostname,$IMAPusername,$IMAPpassword) or die('Cannot connect to Imap: ' . imap_last_error());
 
@@ -73,23 +70,62 @@ $pageToEdit = $response->body;
 echo $pageToEdit = str_get_html($pageToEdit);
 $ul = $pageToEdit->find("ul#ibk_nav_ul", 0);
 
+
+//API POST - query to receive article data
+$article = new Curl;
+$response = $article->post('http://link.gutes-lernen.com/xml/request.php', array('req_id' => '0000', 'pass' => 'ad6cd7f8413b9b6bc0baaddf62d0ce59', 'get_domain' => 'true', 'dom_purl' => 'sdom.co', 'get_link' => 'false'));
+$articleBody = $response->body;
+$xml = json_decode(json_encode((array) simplexml_load_string($articleBody)), 1);
+//Formatting the Text
+$formattedText = '<h1>'.$xml['element']['head1'].'</h1>';
+$i=0;
+foreach ($xml['element']['head3'] as $head3) {
+	if (is_string($head3) == true)
+		$formattedText .= '<h3>'.$head3.'</h3>';
+	$text = $xml['element']['text'][$i];
+	if (is_string($text) == true)
+		$formattedText .= '<p>'.$text.'</p>';
+	$i++;	
+}
+
 //receive all links to editable pages
 //TODO
-//foreach($ul->find('li') as $li) 
-//{
-//    $linksToEdit[] =  $li -> find('a', 0) -> href;
-//}
-//
-//$response = $PageEdit->get('http://www.internetbaukasten.de/'.$linksToEdit[0]);
-//$pageToEdit = $response->body;
-//
-//$pageToEdit = str_get_html($pageToEdit);
-//$id_postToEdit = $pageToEdit -> find('#ibk_content_container', 0) -> first_child() -> first_child() -> id;
-//
-//preg_match_all("/ibk_block_id_(.*)/",$id_postToEdit,$ok_id);
-//$PageEdit-> get('http://www.internetbaukasten.de/index.php?aktion=edit_block&block_id='.$ok_id[1][0].'&type=edit');
-//$PageEdit->post('http://www.internetbaukasten.de/index.php', array('aktion' => 'edit_block_data', 'ta' => '	<h1>Edited Page!!!:)</h1><p>Это стартовая страница</p>'));
-//message_log('page edited</br>');
+foreach($ul->find('li') as $li) 
+{
+    $linksToEdit[] =  $li -> find('a', 0) -> href;
+}
+
+$response = $PageEdit->get('http://www.internetbaukasten.de/'.$linksToEdit[0]);
+$pageToEdit = $response->body;
+
+$pageToEdit = str_get_html($pageToEdit);
+$id_postToEdit = $pageToEdit -> find('#ibk_content_container', 0) -> first_child() -> first_child() -> id;
+
+preg_match_all("/ibk_block_id_(.*)/",$id_postToEdit,$ok_id);
+$PageEdit-> get('http://www.internetbaukasten.de/index.php?aktion=edit_block&block_id='.$ok_id[1][0].'&type=edit');
+$PageEdit->post('http://www.internetbaukasten.de/index.php', array('aktion' => 'edit_block_data', 'ta' => $formattedText));
+message_log('page edited</br>');
+
+//query to edit page with subpage title text
+$response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=standalone_seiten_ajax');
+$pageToEdit = $response->body;
+$pageToEdit = str_get_html($pageToEdit);
+$ol = $pageToEdit->find("#seitenlisten_container", 0)->find("ol", 0);
+//find first id of page to edit
+$lastchild = $ol -> firstchild() -> id;
+preg_match_all("/list_(.*)/",$li -> id,$ok_id);
+//update name of first site
+$PageEdit-> get('http://www.internetbaukasten.de/index.php?aktion=seite_editieren&seiten_id='.$ok_id[1][0].'&ref=standalone_seiten_ajax');
+$PageEdit-> post('http://www.internetbaukasten.de/index.php', array('back2where' => 'standalone_seiten_ajax', 'aktion' => 'seite_update', 'titel' => $xml['element']['subpage_title'], 'sitetitle_o' => '', 'filename' => '', 'innav_o' => '0', 'secure' => '' , 'seitenkeywords' => '' , 'variante' => '0'));
+
+//Delete all other sites
+$i=0;
+foreach ($ol -> find('li') as $li) {
+	$i++;
+	preg_match_all("/list_(.*)/",$li -> id,$ok_id);
+	if ($i>1)
+		$PageEdit->post('http://www.internetbaukasten.de/index.php?aktion=seite_loeschen_ajax', array('seiten_id' => $ok_id[1][0]));
+}
 
 //END query to change page text
 

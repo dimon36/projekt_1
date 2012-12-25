@@ -1,7 +1,7 @@
 <?
 //API POST - query to receive article data
 $article = new Curl;
-$response = $article->post('http://link.gutes-lernen.com/xml/request.php', array('req_id' => '0000', 'pass' => 'ad6cd7f8413b9b6bc0baaddf62d0ce59', 'get_domain' => 'true', 'dom_purl' => 'sdom.co', 'get_link' => 'true'));
+$response = $article->post('http://link.gutes-lernen.com/xml/request.php', array('req_id' => '0000', 'pass' => 'ad6cd7f8413b9b6bc0baaddf62d0ce59', 'get_domain' => 'false', 'dom_purl' => 'sdom.co', 'get_link' => 'false'));
 $articleBody = $response->body;
 $xml = json_decode(json_encode((array) simplexml_load_string($articleBody)), 1);
 //Formatting the Text
@@ -20,7 +20,6 @@ $PageEdit = new Curl;
 
 //login to site
 $PageEdit-> post('http://www.internetbaukasten.de/index.php', array('aktion' => 'login', 'login' => 'resato', 'passwd' => 'cju17y'));
-//$PageEdit-> get('http://www.internetbaukasten.de/index.php?aktion=login_final&kunden_id=249550&pre=dnx5q8g4o4chlmzt3b7wzq80zznt3izx&seiten_id=');
 
 //query to create new pages with subpage title text
 $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=standalone_seiten_ajax');
@@ -29,11 +28,8 @@ $pageToEdit = str_get_html($pageToEdit);
 $ol = $pageToEdit->find("#seitenlisten_container", 0)->find("ol", 0);
 //find last id of page to send id
 $lastchild = $ol -> lastchild() -> id;
-preg_match_all("/list_(.*)/",$li -> id,$ok_id);
+preg_match_all("/list_(.*)/",$lastchild,$ok_id);
 $PageEdit-> post('http://www.internetbaukasten.de/index.php', array('back2where' => 'standalone_seiten_ajax', 'aktion' => 'seite_neu', 'seiten_id' => $ok_id[1][0], 'seiten_typ_id' => '1', 'titel' => $xml['element']['subpage_title'], 'sitetitle_o' => '', 'filename' => '', 'innav_o' => '0', 'secure' => '' , 'seitenkeywords' => '' , 'variante' => '0'));
-
-
-
 // receive id to new block
 $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=bearbeiten');
 $pageToEdit = $response->body;

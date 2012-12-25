@@ -11,12 +11,12 @@ function message_log($message){
 	echo $message;
 };
 
-//require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de.php';
+require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de.php';
 //require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'2_beepworld_de.php';
 //require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'3_webnode_de.php';
 
 //TODO
-require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de_plus_pagefiller.php';
+//require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de_plus_pagefiller.php';
 //require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de_test_xml.php';
 
 

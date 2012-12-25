@@ -11,6 +11,6 @@ function message_log($message){
 	echo $message;
 };
 
-//require_once 'registerAccount'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de.php';
+require_once 'registerAccount'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de.php';
 //require_once 'registerAccount'.DIRECTORY_SEPARATOR.'2_beepworld_de.php';
-require_once 'registerAccount'.DIRECTORY_SEPARATOR.'3_webnode_de.php';
+//require_once 'registerAccount'.DIRECTORY_SEPARATOR.'3_webnode_de.php';
