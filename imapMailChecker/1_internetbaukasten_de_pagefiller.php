@@ -1,7 +1,13 @@
 <?
+//receive info about item
+$db = new edb($db_data);
+$dataFromBD = $db->line("select * from `saved_accounts` order by `id` desc limit 1");
+$hostArr = parse_url('http://'.$dataFromBD['url']); 
+$hostMain = $hostArr['host'];
+
 //API POST - query to receive article data
 $article = new Curl;
-$response = $article->post('http://link.gutes-lernen.com/xml/request.php', array('req_id' => '0000', 'pass' => 'ad6cd7f8413b9b6bc0baaddf62d0ce59', 'get_domain' => 'false', 'dom_purl' => 'sdom.co', 'get_link' => 'false'));
+$response = $article->post('http://link.gutes-lernen.com/xml/request.php', array('req_id' => '0000', 'pass' => 'ad6cd7f8413b9b6bc0baaddf62d0ce59', 'get_domain' => 'false', 'dom_purl' => $hostMain, 'get_link' => 'false'));
 $articleBody = $response->body;
 $xml = json_decode(json_encode((array) simplexml_load_string($articleBody)), 1);
 //Formatting the Text
@@ -19,7 +25,7 @@ foreach ($xml['element']['head3'] as $head3) {
 $PageEdit = new Curl;
 
 //login to site
-$PageEdit-> post('http://www.internetbaukasten.de/index.php', array('aktion' => 'login', 'login' => 'resato', 'passwd' => 'cju17y'));
+$PageEdit-> post('http://www.internetbaukasten.de/index.php', array('aktion' => 'login', 'login' => $dataFromBD['Benutzername'], 'passwd' => $dataFromBD['Passwort']));
 
 //query to create new pages with subpage title text
 $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=standalone_seiten_ajax');
@@ -35,7 +41,7 @@ $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=bearb
 $pageToEdit = $response->body;
 $pageToEdit = str_get_html($pageToEdit);
 //receive last age link
-$id_site_link = $pageToEdit->find("#ibk_nav_ul", 0) -> firstchild() -> find('a', 0) -> href;
+$id_site_link = $pageToEdit->find("#ibk_nav_ul", 0) -> lastchild() -> find('a', 0) -> href;
 //get the page to edit
 $response = $PageEdit->get('http://www.internetbaukasten.de/'.$id_site_link);
 $pageToEdit = $response->body;
@@ -46,14 +52,20 @@ preg_match_all("/ibk_block_id_(.*)_elemente_id_11/",$new_block,$new_block_id);
 $PageEdit -> get('http://www.internetbaukasten.de/index.php?aktion=new_sub_block&block_id='.$new_block_id[1][0].'&elemente_id=1');
 $PageEdit -> get('http://www.internetbaukasten.de/index.php?aktion=set_block_typ&blockkombination_id=49');
 $PageEdit -> post('http://www.internetbaukasten.de/index.php', array('aktion' => 'edit_block_data', 'ta' => $formattedText));
-
 //update order
 //$orderArray = array();
 //foreach ($ol ->find('li') as $li) {
 //	$orderArray['list['.$li -> id.']'] = 'root';
 //}
-//$PageEdit-> post('http://www.internetbaukasten.de/index.php?aktion=seiten_update_order');
+//$PageEdit-> post('http://www.internetbaukasten.de/index.php?aktion=seiten_update_order', $orderArray);
 	
 //export to the web
+$response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=export_web');
+$pageToEdit = str_get_html($response->body);
+$exportServerId = $pageToEdit -> find('#gratis_form', 0)->find('[checked=checked]', 0)->value;
+$PageEdit->post("http://www.internetbaukasten.de/index.php", array('exportServerId' => $exportServerId, 'aktion' => 'export_start', 'privateServer' => '0', 'domainweiterleitung' => '0'));
 $PageEdit->get('http://www.internetbaukasten.de/index.php?aktion=export_do');
+
+
+
 
