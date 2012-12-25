@@ -12,5 +12,6 @@ function message_log($message){
 };
 
 //TODO
-//require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de_pagefiller.php';
 require_once 'imapMailChecker'.DIRECTORY_SEPARATOR.'1_internetbaukasten_de_pagefiller.php';
+
+

@@ -29,8 +29,7 @@ $PageEdit-> post('http://www.internetbaukasten.de/index.php', array('aktion' => 
 
 //query to create new pages with subpage title text
 $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=standalone_seiten_ajax');
-$pageToEdit = $response->body;
-$pageToEdit = str_get_html($pageToEdit);
+$pageToEdit = str_get_html($response->body);
 $ol = $pageToEdit->find("#seitenlisten_container", 0)->find("ol", 0);
 //find last id of page to send id
 $lastchild = $ol -> lastchild() -> id;
@@ -38,14 +37,12 @@ preg_match_all("/list_(.*)/",$lastchild,$ok_id);
 $PageEdit-> post('http://www.internetbaukasten.de/index.php', array('back2where' => 'standalone_seiten_ajax', 'aktion' => 'seite_neu', 'seiten_id' => $ok_id[1][0], 'seiten_typ_id' => '1', 'titel' => $xml['element']['subpage_title'], 'sitetitle_o' => '', 'filename' => '', 'innav_o' => '0', 'secure' => '' , 'seitenkeywords' => '' , 'variante' => '0'));
 // receive id to new block
 $response = $PageEdit->get('http://www.internetbaukasten.de/index.php?view=bearbeiten');
-$pageToEdit = $response->body;
-$pageToEdit = str_get_html($pageToEdit);
+$pageToEdit = str_get_html($response->body);
 //receive last age link
 $id_site_link = $pageToEdit->find("#ibk_nav_ul", 0) -> lastchild() -> find('a', 0) -> href;
 //get the page to edit
 $response = $PageEdit->get('http://www.internetbaukasten.de/'.$id_site_link);
-$pageToEdit = $response->body;
-$pageToEdit = str_get_html($pageToEdit);
+$pageToEdit = str_get_html($response->body);
 $new_block = $pageToEdit -> find('.ibk_editiable_new', 0)->id;
 preg_match_all("/ibk_block_id_(.*)_elemente_id_11/",$new_block,$new_block_id);
 // create new block
