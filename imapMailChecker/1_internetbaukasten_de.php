@@ -88,6 +88,10 @@ foreach ($xml['element']['head3'] as $head3) {
 	$i++;	
 }
 
+//change title heading text
+$PageEdit->get('http://www.internetbaukasten.de/index.php?view=standalone_headtext');
+$PageEdit->post('http://www.internetbaukasten.de/index.php', array('aktion' => 'standalone_headtext', 'dk_headfont_edit' => 'standard', 'dk_head1size_edit' => '26', 'dk_head2size_edit' => '17', 'dk_headtexth1_edit' => $xml['element']['subpage_title'], 'dk_headtexth2_edit' => '' , 'dk_headcolor_edit' => 'standard' , 'dk_headposition_edit' => 'standard'));
+
 //receive all links to editable pages
 //TODO
 foreach($ul->find('li') as $li) 
